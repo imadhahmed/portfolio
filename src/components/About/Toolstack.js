@@ -2,8 +2,8 @@ import React from "react";
 import { Col, Row } from "react-bootstrap";
 import {
   SiVisualstudiocode,
-  SiCanva,
-  SiFlutter,
+  SiWindows11,
+  SiFigma,
 
 } from "react-icons/si";
 
@@ -15,11 +15,12 @@ function Toolstack() {
         <SiVisualstudiocode />
       </Col>
       <Col xs={4} md={2} className="tech-icons">
-        <SiCanva />
+        <SiFigma />
       </Col>
       <Col xs={4} md={2} className="tech-icons">
-        <SiFlutter />
+        <SiWindows11 />
       </Col>
+      
     </Row>
   );
 }
