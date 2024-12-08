@@ -5,6 +5,7 @@ import Particle from "../Particle";
 
 import chatify from "../../Assets/Projects/chatify.png";
 import organizer from "../../Assets/Projects/organizer.png";
+import age from "../../Assets/Projects/age .jpg";
 
 function Projects() {
   return (
@@ -34,6 +35,17 @@ function Projects() {
             />
           </Col>
 
+        </Row>
+        <Row style={{ justifyContent: "center", paddingBottom: "10px" }}>
+        <Col md={4} className="project-card">
+            <ProjectCard
+              imgPath={age}
+              isBlog={false}
+              title="Age & Gender Detector"
+              description="I Create Age & Gender Detector Using Python and OpenCV."
+              demoLink="https://github.com/imadhahmed/Age----Gender-Detection"
+            />
+          </Col>
         </Row>
       </Container>
     </Container>
