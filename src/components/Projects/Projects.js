@@ -22,6 +22,7 @@ function Projects() {
               isBlog={false}
               title="Portfolio"
               description="I create my portfolio using react js,javascript and bootstrap."
+              ghLink="https://github.com/imadhahmed/portfolio.git"
               demoLink="https://imadhahmed.github.io/portfolio/"
             />
           </Col>
@@ -31,6 +32,7 @@ function Projects() {
               isBlog={false}
               title="Personal Organizer"
               description="I create Personal Organizer Application  using C++,.NET Framework."
+              ghLink="https://github.com/imadhahmed/personalOrganizer.git"
               demoLink="https://github.com/imadhahmed/personalOrganizer.git"
             />
           </Col>
@@ -43,6 +45,7 @@ function Projects() {
               isBlog={false}
               title="Age & Gender Detector"
               description="I Create Age & Gender Detector Using Python and OpenCV."
+              ghLink="https://github.com/imadhahmed/Age----Gender-Detection"
               demoLink="https://github.com/imadhahmed/Age----Gender-Detection"
             />
           </Col>
