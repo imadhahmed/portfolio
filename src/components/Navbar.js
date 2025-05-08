@@ -6,7 +6,7 @@ import logo from "../Assets/logo.png";
 import Button from "react-bootstrap/Button";
 import { Link } from "react-router-dom";
 import { CgGitFork } from "react-icons/cg";
-import { ImBlog } from "react-icons/im";
+import { FaLinkedin } from "react-icons/fa"; // Updated import
 import {
   AiFillStar,
   AiOutlineHome,
@@ -94,14 +94,13 @@ function NavBar() {
 
             <Nav.Item>
               <Nav.Link
-                href="https://techtitans3.blogspot.com/"
+                href="https://www.linkedin.com/in/imadhahmed/"
                 target="_blank"
                 rel="noreferrer"
               >
-                <ImBlog style={{ marginBottom: "2px" }} /> Blogs
+                <FaLinkedin style={{ marginBottom: "2px" }} /> LinkedIn
               </Nav.Link>
             </Nav.Item>
-
           </Nav>
         </Navbar.Collapse>
       </Container>
