@@ -1,0 +1,171 @@
+import { useState, useEffect } from 'react'
+import { fetchAllAchievements, createAchievement, updateAchievement, deleteAchievement } from '../api/achievements'
+import Modal from '../components/Modal'
+import { Plus, Edit2, Trash2, Trophy } from 'lucide-react'
+
+export default function Achievements() {
+  const [achievements, setAchievements] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingAch, setEditingAch] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  const [title, setTitle] = useState('')
+  const [organization, setOrganization] = useState('')
+  const [description, setDescription] = useState('')
+  const [date, setDate] = useState('')
+  const [credentialUrl, setCredentialUrl] = useState('')
+  const [imageFile, setImageFile] = useState(null)
+
+  const loadAchievements = async () => {
+    setLoading(true)
+    try {
+      const res = await fetchAllAchievements()
+      if (res && res.data) setAchievements(res.data)
+    } catch (err) {
+      console.warn('Load achievements warning:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadAchievements()
+  }, [])
+
+  const openCreateModal = () => {
+    setEditingAch(null)
+    setTitle('')
+    setOrganization('')
+    setDescription('')
+    setDate('')
+    setCredentialUrl('')
+    setImageFile(null)
+    setIsModalOpen(true)
+  }
+
+  const openEditModal = (ach) => {
+    setEditingAch(ach)
+    setTitle(ach.title || '')
+    setOrganization(ach.organization || '')
+    setDescription(ach.description || '')
+    setDate(ach.date || '')
+    setCredentialUrl(ach.credentialUrl || '')
+    setImageFile(null)
+    setIsModalOpen(true)
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setSubmitting(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('title', title)
+      formData.append('organization', organization)
+      formData.append('description', description)
+      formData.append('date', date)
+      formData.append('credentialUrl', credentialUrl)
+
+      if (imageFile) formData.append('image', imageFile)
+
+      if (editingAch) {
+        await updateAchievement(editingAch._id || editingAch.id, formData)
+      } else {
+        await createAchievement(formData)
+      }
+
+      setIsModalOpen(false)
+      loadAchievements()
+    } catch (err) {
+      alert(`Error saving achievement: ${err.message}`)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleDelete = async (id) => {
+    if (confirm('Delete this achievement entry?')) {
+      try {
+        await deleteAchievement(id)
+        loadAchievements()
+      } catch (err) {
+        alert(`Error deleting: ${err.message}`)
+      }
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-white tracking-tight">Achievements & Awards</h2>
+          <p className="text-sm text-gray-400 mt-1">Manage competitions, hackathons, and leadership honors</p>
+        </div>
+        <button
+          onClick={openCreateModal}
+          className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#00df8f] text-[#0b1014] font-bold text-sm hover:bg-[#00b373] transition-colors shadow-lg shadow-[#00df8f]/20 self-start sm:self-auto"
+        >
+          <Plus size={18} />
+          <span>+ Add New Achievement</span>
+        </button>
+      </div>
+
+      <div className="bg-[#141a21] border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
+        <table className="w-full text-left text-sm text-gray-300">
+          <thead className="bg-[#0f151b] text-xs uppercase tracking-wider text-gray-400 border-b border-gray-800">
+            <tr>
+              <th className="py-4 px-6">Achievement</th>
+              <th className="py-4 px-6">Organization</th>
+              <th className="py-4 px-6 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-800/60">
+            {loading ? (
+              <tr><td colSpan={3} className="py-8 text-center text-gray-500">Loading achievements...</td></tr>
+            ) : achievements.length === 0 ? (
+              <tr><td colSpan={3} className="py-8 text-center text-gray-500">No achievements recorded yet. Click "+ Add New Achievement".</td></tr>
+            ) : (
+              achievements.map((ach) => (
+                <tr key={ach._id || ach.id} className="hover:bg-white/5 transition-colors">
+                  <td className="py-4 px-6">
+                    <p className="font-bold text-white text-base">{ach.title}</p>
+                    <p className="text-xs text-gray-500 line-clamp-1">{ach.description}</p>
+                  </td>
+                  <td className="py-4 px-6 font-semibold text-gray-300">{ach.organization}</td>
+                  <td className="py-4 px-6 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button onClick={() => openEditModal(ach)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg"><Edit2 size={16} /></button>
+                      <button onClick={() => handleDelete(ach._id || ach.id)} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg"><Trash2 size={16} /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingAch ? 'Edit Achievement' : 'Add New Achievement'}>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase text-gray-400 mb-1">Title</label>
+            <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Bitcode v5.0 Coding Competition" className="w-full bg-[#0b1014] border border-gray-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[#00df8f]" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase text-gray-400 mb-1">Organization / Event</label>
+            <input type="text" required value={organization} onChange={(e) => setOrganization(e.target.value)} placeholder="e.g. University Coding Society" className="w-full bg-[#0b1014] border border-gray-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[#00df8f]" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase text-gray-400 mb-1">Description</label>
+            <textarea required rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Overview of the achievement..." className="w-full bg-[#0b1014] border border-gray-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[#00df8f]" />
+          </div>
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-800">
+            <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-gray-700 text-sm font-semibold text-gray-300 hover:bg-white/5">Cancel</button>
+            <button type="submit" disabled={submitting} className="px-6 py-2.5 rounded-xl bg-[#00df8f] text-[#0b1014] font-bold text-sm hover:bg-[#00b373] disabled:opacity-50">{submitting ? 'Saving...' : 'Save Achievement'}</button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  )
+}
