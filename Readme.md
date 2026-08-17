@@ -1,21 +1,16 @@
-Welcome to My Portfolio Repository! 💼✨
-I'm thrilled to share my latest portfolio project, built using React.js, JavaScript, and Bootstrap. 🎉
+# React + Vite
 
-Take a look, explore the features, and feel free to share your thoughts or feedback. Your input means a lot! 😊
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-🛠️ Setup Instructions
-Follow these steps to set up and run the project locally:
+Currently, two official plugins are available:
 
-1. Clone the Repository
-Clone the repository to your local machine using Git: git clone https://github.com/username/portfolio.git
-Navigate into the project directory: cd portfolio
-2. Install Dependencies
-Make sure you have Node.js installed on your system.
-If not, download it here.
-Install the required dependencies by running: npm install
-3. Run the Project
-Start the development server: npm start
-The project will be accessible in your browser at: http://localhost:3000
-4. Build for Production (Optional)
-To create an optimized production build, run: npm run build
-The output will be in the build directory, ready for deployment.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the Oxlint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
