@@ -32,13 +32,22 @@ app.use(
   })
 )
 
-// Rate Limiting
-const limiter = rateLimit({
+// General Rate Limiting for Public APIs (500 requests per 15 mins)
+const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
-  message: { success: false, message: 'Too many requests, please try again later.' },
+  max: 500,
+  message: { success: false, message: 'Too many requests from this IP, please try again later.' },
 })
-app.use(limiter)
+
+// Strict Rate Limiting for Login Auth Route (15 attempts per 15 mins)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  message: { success: false, message: 'Too many login attempts, please try again after 15 minutes.' },
+})
+
+app.use('/api', apiLimiter)
+app.use('/api/auth/login', authLimiter)
 
 // Body Parser
 app.use(express.json({ limit: '10mb' }))

@@ -59,17 +59,26 @@ export async function getProjects() {
   try {
     const res = await apiFetch('/projects')
     if (res && Array.isArray(res.data) && res.data.length > 0) {
-      return res.data.map((p, idx) => ({
-        id: p._id || p.id || idx,
-        category: p.category || 'Development',
-        title: p.title,
-        description: p.description,
-        tags: p.technologies || p.tags || [],
-        github: p.githubUrl || p.github || '#',
-        live: p.liveUrl || p.live || '#',
-        image: typeof p.image === 'string' ? p.image : p.image?.url || DEFAULT_PROJECTS[0].image,
-        color: p.color || '#00df8f',
-      }))
+      return res.data.map((p, idx) => {
+        let rawTags = p.technologies || p.tags || []
+        if (typeof rawTags === 'string') {
+          try { rawTags = JSON.parse(rawTags) } catch (e) { rawTags = rawTags.split(',').map((t) => t.trim()) }
+        }
+        const tags = Array.isArray(rawTags) ? rawTags : []
+        const imageUrl = typeof p.image === 'string' ? p.image : (p.image?.url || DEFAULT_PROJECTS[0].image)
+
+        return {
+          id: p._id || p.id || idx,
+          category: p.category || 'Web Development',
+          title: p.title || 'Untitled Project',
+          description: p.description || '',
+          tags,
+          github: p.githubUrl || p.github || '#',
+          live: p.liveUrl || p.live || '#',
+          image: imageUrl,
+          color: p.color || '#00df8f',
+        }
+      })
     }
     return DEFAULT_PROJECTS
   } catch (error) {

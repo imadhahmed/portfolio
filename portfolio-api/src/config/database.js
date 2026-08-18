@@ -12,5 +12,6 @@ export async function connectDB() {
     console.log(`[MongoDB Connected] Host: ${conn.connection.host}`)
   } catch (error) {
     console.error(`[MongoDB Connection Error]`, error.message)
+    throw error
   }
 }

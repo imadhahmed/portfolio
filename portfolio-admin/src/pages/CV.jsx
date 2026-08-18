@@ -49,7 +49,7 @@ export default function CV() {
     }
   }
 
-  const cvInfo = settings?.cv || { url: '/CV.pdf', fileName: 'Imadh_Ahmed_CV.pdf' }
+  const cvInfo = settings?.cv || { url: '#', fileName: 'No CV Uploaded' }
 
   return (
     <div className="space-y-6 max-w-4xl">
