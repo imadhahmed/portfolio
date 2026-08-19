@@ -141,8 +141,8 @@ export default function Footer() {
                 <div className="w-8 h-8 rounded-full bg-[#00df8f]/10 border border-[#00df8f]/30 flex items-center justify-center text-[#00df8f] shrink-0">
                   <Mail size={14} />
                 </div>
-                <a href="mailto:imadhahmed@gmail.com" className="hover:text-[#00df8f] transition-colors">
-                  imadhahmed@gmail.com
+                <a href="mailto:imadhahmeth08@gmail.com" className="hover:text-[#00df8f] transition-colors">
+                  imadhahmeth08@gmail.com
                 </a>
               </div>
 
