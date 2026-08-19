@@ -46,14 +46,9 @@ export async function uploadCV(req, res) {
     // 2. Upload PDF file to Cloudinary
     const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/cv', 'auto')
 
-    let cvUrl = uploadRes.url
-    if (cvUrl && cvUrl.includes('/upload/') && !cvUrl.includes('fl_attachment')) {
-      cvUrl = cvUrl.replace('/upload/', '/upload/fl_attachment/')
-    }
-
     // 3. Save Cloudinary URL and metadata directly to MongoDB
     settings.cv = {
-      url: cvUrl,
+      url: uploadRes.url,
       publicId: uploadRes.publicId,
       fileName: fileName,
       updatedAt: new Date(),
