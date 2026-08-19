@@ -24,13 +24,13 @@ export default function Login({ onLoginSuccess }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-[#0b1014]">
-      <div className="w-full max-w-md bg-[#141a21] border border-gray-800 rounded-3xl p-8 shadow-2xl">
-        <div className="text-center mb-8">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0b1014]">
+      <div className="w-full max-w-md bg-[#141a21] border border-gray-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl">
+        <div className="text-center mb-6 sm:mb-8">
           <div className="w-12 h-12 rounded-2xl bg-[#00df8f] mx-auto flex items-center justify-center font-bold text-[#0b1014] text-xl mb-4 shadow-lg shadow-[#00df8f]/20">
             IA
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Admin Portal</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Admin Portal</h1>
           <p className="text-xs text-gray-400 mt-1">Sign in to manage your portfolio content live</p>
         </div>
 
@@ -40,7 +40,7 @@ export default function Login({ onLoginSuccess }) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Email Address</label>
             <div className="relative">
@@ -51,7 +51,7 @@ export default function Login({ onLoginSuccess }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@imadh.me"
-                className="w-full bg-[#0b1014] border border-gray-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-[#00df8f] transition-colors"
+                className="w-full bg-[#0b1014] border border-gray-800 rounded-xl py-3 pl-11 pr-4 text-base sm:text-sm text-white focus:outline-none focus:border-[#00df8f] transition-colors"
               />
             </div>
           </div>
@@ -66,7 +66,7 @@ export default function Login({ onLoginSuccess }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-[#0b1014] border border-gray-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-[#00df8f] transition-colors"
+                className="w-full bg-[#0b1014] border border-gray-800 rounded-xl py-3 pl-11 pr-4 text-base sm:text-sm text-white focus:outline-none focus:border-[#00df8f] transition-colors"
               />
             </div>
           </div>

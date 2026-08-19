@@ -12,6 +12,7 @@ import { logout } from './api/auth'
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => Boolean(localStorage.getItem('admin_token')))
   const [activeTab, setActiveTab] = useState('dashboard')
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const handleUnauthorized = () => setIsAuthenticated(false)
@@ -22,6 +23,7 @@ export default function App() {
   const handleLogout = () => {
     logout()
     setIsAuthenticated(false)
+    setIsMobileMenuOpen(false)
   }
 
   if (!isAuthenticated) {
@@ -29,13 +31,25 @@ export default function App() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#0b1014]">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
+    <div className="flex min-h-screen bg-[#0b1014] relative overflow-x-hidden">
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={(tab) => {
+          setActiveTab(tab)
+          setIsMobileMenuOpen(false)
+        }}
+        onLogout={handleLogout}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header user={{ email: 'admin@imadh.me' }} />
+      <div className="flex-1 flex flex-col min-w-0 w-full">
+        <Header
+          user={{ email: 'admin@imadh.me' }}
+          onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
+        />
 
-        <main className="p-8 flex-1">
+        <main className="p-4 sm:p-6 md:p-8 flex-1 w-full max-w-full overflow-x-hidden">
           {activeTab === 'dashboard' && <Dashboard setActiveTab={setActiveTab} />}
           {activeTab === 'projects' && <Projects />}
           {activeTab === 'certificates' && <Certificates />}

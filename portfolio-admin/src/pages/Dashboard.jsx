@@ -42,24 +42,24 @@ export default function Dashboard({ setActiveTab }) {
   ]
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-white tracking-tight">Overview Dashboard</h2>
-        <p className="text-sm text-gray-400 mt-1">Manage all portfolio dynamic sections live</p>
+        <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Overview Dashboard</h2>
+        <p className="text-xs sm:text-sm text-gray-400 mt-1">Manage all portfolio dynamic sections live</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {cards.map((card) => {
           const Icon = card.icon
           return (
             <div
               key={card.title}
               onClick={() => setActiveTab(card.tab)}
-              className={`p-6 rounded-2xl border ${card.bg} cursor-pointer hover:scale-[1.02] transition-transform flex items-center justify-between group`}
+              className={`p-5 sm:p-6 rounded-2xl border ${card.bg} cursor-pointer hover:scale-[1.02] transition-transform flex items-center justify-between group`}
             >
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">{card.title}</p>
-                <h3 className="text-3xl font-bold text-white">{loading ? '...' : card.count}</h3>
+                <h3 className="text-2xl sm:text-3xl font-bold text-white">{loading ? '...' : card.count}</h3>
               </div>
               <div className={`p-3 rounded-xl bg-white/5 ${card.color} group-hover:bg-white/10 transition-colors`}>
                 <Icon size={24} />
@@ -69,10 +69,10 @@ export default function Dashboard({ setActiveTab }) {
         })}
       </div>
 
-      <div className="p-6 rounded-2xl bg-[#141a21] border border-gray-800 flex items-center justify-between">
+      <div className="p-5 sm:p-6 rounded-2xl bg-[#141a21] border border-gray-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
         <div>
           <h3 className="font-bold text-white text-base">Live Sync Notice</h3>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-gray-400 mt-1 leading-relaxed">
             Any addition, edit, or removal in the tabs above automatically updates <strong className="text-[#00df8f]">http://imadh.me/</strong> immediately upon visitor refresh.
           </p>
         </div>
@@ -80,7 +80,7 @@ export default function Dashboard({ setActiveTab }) {
           href="http://imadh.me"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 text-xs font-bold px-4 py-2.5 rounded-xl bg-[#00df8f] text-[#0b1014] hover:bg-[#00b373] transition-colors"
+          className="flex items-center gap-2 text-xs font-bold px-4 py-2.5 rounded-xl bg-[#00df8f] text-[#0b1014] hover:bg-[#00b373] transition-colors shrink-0 self-stretch sm:self-auto justify-center"
         >
           <span>Open imadh.me</span>
           <ArrowUpRight size={14} />
