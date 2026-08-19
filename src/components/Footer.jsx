@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowUpRight, Quote, Code2, Mail, Send, CheckCircle2, User, AtSign, MessageSquare, AlertCircle } from 'lucide-react'
+import { ArrowUpRight, Quote, Mail, Send, CheckCircle2, User, AtSign, MessageSquare, AlertCircle, PhoneCall } from 'lucide-react'
 import DaysICodeFooter from './DaysICodeFooter'
 
 // Custom clean Brand SVG Icons
@@ -19,20 +19,6 @@ const LinkedinIcon = ({ size = 16, className = "" }) => (
   </svg>
 )
 
-const FacebookIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-  </svg>
-)
-
-const InstagramIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-  </svg>
-)
-
 const menuLinks = [
   { label: 'About', href: '#about' },
   { label: 'Skills', href: '#services' },
@@ -44,8 +30,6 @@ const menuLinks = [
 const socialLinks = [
   { label: 'GitHub', icon: GithubIcon, href: 'https://github.com/imadhahmed' },
   { label: 'LinkedIn', icon: LinkedinIcon, href: 'https://www.linkedin.com/in/imadhahmed/' },
-  { label: 'Facebook', icon: FacebookIcon, href: 'https://web.facebook.com/imadh.ahmed.507/' },
-  { label: 'Instagram', icon: InstagramIcon, href: 'https://www.instagram.com/imadh_ahmed/' },
 ]
 
 const fadeUp = {
@@ -154,26 +138,28 @@ export default function Footer() {
 
             <motion.div variants={fadeUp} className="space-y-4 mb-8">
               <div className="flex items-center gap-3 text-sm text-gray-300">
-                <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#00df8f]">
+                <div className="w-8 h-8 rounded-full bg-[#00df8f]/10 border border-[#00df8f]/30 flex items-center justify-center text-[#00df8f] shrink-0">
                   <Mail size={14} />
                 </div>
-                <span>imadhahmed@gmail.com</span>
+                <a href="mailto:imadhahmed@gmail.com" className="hover:text-[#00df8f] transition-colors">
+                  imadhahmed@gmail.com
+                </a>
+              </div>
+
+              <div className="flex items-center gap-3 text-sm text-gray-300">
+                <div className="w-8 h-8 rounded-full bg-[#00df8f]/10 border border-[#00df8f]/30 flex items-center justify-center text-[#00df8f] shrink-0">
+                  <PhoneCall size={14} />
+                </div>
+                <a
+                  href="https://wa.me/94762293818"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#00df8f] transition-colors font-medium"
+                >
+                  +94 76 229 3818
+                </a>
               </div>
             </motion.div>
-
-            <motion.a
-              variants={fadeUp}
-              href="https://github.com/imadhahmed"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white text-[#0d1116] font-bold text-sm tracking-wide hover:bg-gray-100 transition-colors duration-300 shadow-[0_4px_24px_rgba(255,255,255,0.15)]"
-            >
-              <Code2 size={16} />
-              Visit GitHub Profile
-              <ArrowUpRight size={16} />
-            </motion.a>
           </div>
 
           {/* Right Column: Mail Message Box Form */}
