@@ -49,7 +49,11 @@ export default function CV() {
     }
   }
 
-  const cvInfo = settings?.cv || { url: '#', fileName: 'No CV Uploaded' }
+  const rawUrl = settings?.cv?.url
+  const cvUrl = (rawUrl && rawUrl !== '#')
+    ? (rawUrl.includes('cloudinary.com') && rawUrl.includes('/upload/') && !rawUrl.includes('fl_attachment') ? rawUrl.replace('/upload/', '/upload/fl_attachment/') : rawUrl)
+    : '/CV.pdf'
+  const cvFileName = settings?.cv?.fileName || 'CV.pdf'
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -74,17 +78,18 @@ export default function CV() {
           </div>
           <div className="min-w-0">
             <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Current Active CV</p>
-            <h3 className="text-base sm:text-lg font-bold text-white mt-0.5 truncate">{loading ? 'Loading...' : cvInfo.fileName}</h3>
-            {cvInfo.updatedAt && (
-              <p className="text-xs text-gray-500 mt-0.5">Last updated: {new Date(cvInfo.updatedAt).toLocaleDateString()}</p>
+            <h3 className="text-base sm:text-lg font-bold text-white mt-0.5 truncate">{loading ? 'Loading...' : cvFileName}</h3>
+            {settings?.cv?.updatedAt && (
+              <p className="text-xs text-gray-500 mt-0.5">Last updated: {new Date(settings.cv.updatedAt).toLocaleDateString()}</p>
             )}
           </div>
         </div>
 
         <a
-          href={cvInfo.url}
+          href={cvUrl}
           target="_blank"
           rel="noopener noreferrer"
+          download={cvFileName}
           className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-gray-700 text-xs font-bold text-white hover:border-[#00df8f] hover:text-[#00df8f] transition-all w-full sm:w-auto shrink-0"
         >
           <Download size={15} />

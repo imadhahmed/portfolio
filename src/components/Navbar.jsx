@@ -93,10 +93,10 @@ export default function Navbar() {
         {/* Right Action Buttons */}
         <div className="flex items-center gap-3">
           <a
-            href={settings.cvUrl}
-            target={settings.cvUrl.startsWith('http') ? '_blank' : '_self'}
+            href={settings.cvUrl || '/CV.pdf'}
+            target="_blank"
             rel="noopener noreferrer"
-            download={settings.cvFileName}
+            download={settings.cvFileName || 'CV.pdf'}
             className="hidden sm:flex items-center gap-2 text-xs font-semibold tracking-wider text-[#0d1116] bg-[#00df8f] px-4 py-2 rounded-full hover:bg-[#00b373] transition-all duration-300 shadow-[0_0_12px_rgba(0,223,143,0.3)] font-medium"
           >
             <Download size={14} />
@@ -158,10 +158,10 @@ export default function Navbar() {
 
               <div className="pt-6 border-t border-white/10 flex flex-col gap-3">
                 <a
-                  href={settings.cvUrl}
-                  target={settings.cvUrl.startsWith('http') ? '_blank' : '_self'}
+                  href={settings.cvUrl || '/CV.pdf'}
+                  target="_blank"
                   rel="noopener noreferrer"
-                  download={settings.cvFileName}
+                  download={settings.cvFileName || 'CV.pdf'}
                   onClick={() => setMobileOpen(false)}
                   className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-[#0d1116] bg-[#00df8f] px-4 py-3 rounded-full hover:bg-[#00b373] transition-colors shadow-[0_0_15px_rgba(0,223,143,0.3)]"
                 >

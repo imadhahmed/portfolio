@@ -116,10 +116,10 @@ export default function Hero() {
               </motion.button>
 
               <motion.a
-                href={settings.cvUrl}
-                target={settings.cvUrl.startsWith('http') ? '_blank' : '_self'}
+                href={settings.cvUrl || '/CV.pdf'}
+                target="_blank"
                 rel="noopener noreferrer"
-                download={settings.cvFileName}
+                download={settings.cvFileName || 'CV.pdf'}
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
                 className="flex items-center gap-3 px-7 py-4 rounded-full font-semibold text-sm tracking-wide text-white border border-white/20 bg-white/5 hover:border-[#00df8f] hover:text-[#00df8f] transition-all duration-300"
