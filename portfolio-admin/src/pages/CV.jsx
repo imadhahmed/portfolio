@@ -49,7 +49,18 @@ export default function CV() {
     }
   }
 
-  const cvInfo = settings?.cv || { url: '#', fileName: 'No CV Uploaded' }
+  const rawCvUrl = settings?.cv?.url
+  const cvUrl = (!rawCvUrl || rawCvUrl === '#')
+    ? '/CV.pdf'
+    : (rawCvUrl.includes('cloudinary.com') && rawCvUrl.includes('/upload/') && !rawCvUrl.includes('fl_attachment'))
+      ? rawCvUrl.replace('/upload/', '/upload/fl_attachment/')
+      : rawCvUrl
+
+  const cvInfo = {
+    url: cvUrl,
+    fileName: settings?.cv?.fileName || 'CV.pdf',
+    updatedAt: settings?.cv?.updatedAt,
+  }
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -85,6 +96,7 @@ export default function CV() {
           href={cvInfo.url}
           target="_blank"
           rel="noopener noreferrer"
+          download={cvInfo.fileName}
           className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-gray-700 text-xs font-bold text-white hover:border-[#00df8f] hover:text-[#00df8f] transition-all w-full sm:w-auto shrink-0"
         >
           <Download size={15} />
