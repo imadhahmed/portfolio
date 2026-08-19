@@ -23,3 +23,11 @@ export async function deleteProject(id) {
     method: 'DELETE',
   })
 }
+
+export async function reorderProjects(items) {
+  return await adminFetch('/projects/reorder', {
+    method: 'PUT',
+    body: JSON.stringify({ items }),
+  })
+}
+

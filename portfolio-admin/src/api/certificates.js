@@ -23,3 +23,11 @@ export async function deleteCertificate(id) {
     method: 'DELETE',
   })
 }
+
+export async function reorderCertificates(items) {
+  return await adminFetch('/certificates/reorder', {
+    method: 'PUT',
+    body: JSON.stringify({ items }),
+  })
+}
+

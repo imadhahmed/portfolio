@@ -118,3 +118,28 @@ export async function deleteCertificate(req, res) {
     res.status(500).json({ success: false, message: error.message })
   }
 }
+
+export async function reorderCertificates(req, res) {
+  try {
+    const { items } = req.body
+    if (!Array.isArray(items)) {
+      return res.status(400).json({ success: false, message: 'Invalid items array' })
+    }
+
+    const bulkOps = items.map((item, index) => ({
+      updateOne: {
+        filter: { _id: item.id || item._id },
+        update: { $set: { displayOrder: item.displayOrder !== undefined ? item.displayOrder : index } },
+      },
+    }))
+
+    if (bulkOps.length > 0) {
+      await Certificate.bulkWrite(bulkOps)
+    }
+
+    res.json({ success: true, message: 'Certificates reordered successfully' })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+

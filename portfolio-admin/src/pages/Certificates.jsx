@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { fetchAllCertificates, createCertificate, updateCertificate, deleteCertificate } from '../api/certificates'
+import { fetchAllCertificates, createCertificate, updateCertificate, deleteCertificate, reorderCertificates } from '../api/certificates'
 import Modal from '../components/Modal'
-import { Plus, Edit2, Trash2, ShieldCheck } from 'lucide-react'
+import { Plus, Edit2, Trash2, ShieldCheck, GripVertical, ArrowUp, ArrowDown } from 'lucide-react'
 
 export default function Certificates() {
   const [certificates, setCertificates] = useState([])
@@ -9,6 +9,8 @@ export default function Certificates() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCert, setEditingCert] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [draggedIndex, setDraggedIndex] = useState(null)
+  const [dragOverIndex, setDragOverIndex] = useState(null)
 
   // Form states
   const [title, setTitle] = useState('')
@@ -18,6 +20,7 @@ export default function Certificates() {
   const [tags, setTags] = useState('')
   const [credentialUrl, setCredentialUrl] = useState('')
   const [status, setStatus] = useState('published')
+  const [displayOrder, setDisplayOrder] = useState(0)
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState('')
 
@@ -48,6 +51,7 @@ export default function Certificates() {
     setTags('')
     setCredentialUrl('')
     setStatus('published')
+    setDisplayOrder(certificates.length)
     setImageFile(null)
     setImagePreview('')
     setIsModalOpen(true)
@@ -62,6 +66,7 @@ export default function Certificates() {
     setTags(Array.isArray(cert.tags) ? cert.tags.join(', ') : cert.tags || '')
     setCredentialUrl(cert.credentialUrl || '')
     setStatus(cert.status || 'published')
+    setDisplayOrder(cert.displayOrder !== undefined ? cert.displayOrder : 0)
     setImageFile(null)
     setImagePreview(typeof cert.image === 'string' ? cert.image : cert.image?.url || '')
     setIsModalOpen(true)
@@ -81,6 +86,7 @@ export default function Certificates() {
       formData.append('tags', JSON.stringify(tagsArray))
       formData.append('credentialUrl', credentialUrl)
       formData.append('status', status)
+      formData.append('displayOrder', displayOrder)
 
       if (imageFile) {
         formData.append('image', imageFile)
@@ -112,12 +118,78 @@ export default function Certificates() {
     }
   }
 
+  // Drag and Drop handlers
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', index)
+  }
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index)
+    }
+  }
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+  }
+
+  const handleDrop = async (e, targetIndex) => {
+    e.preventDefault()
+    if (draggedIndex === null || draggedIndex === targetIndex) {
+      setDraggedIndex(null)
+      setDragOverIndex(null)
+      return
+    }
+
+    const updated = [...certificates]
+    const [movedItem] = updated.splice(draggedIndex, 1)
+    updated.splice(targetIndex, 0, movedItem)
+
+    const reordered = updated.map((item, idx) => ({ ...item, displayOrder: idx }))
+    setCertificates(reordered)
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+
+    try {
+      await reorderCertificates(reordered.map((item, idx) => ({ id: item._id || item.id, displayOrder: idx })))
+    } catch (err) {
+      console.error('Reorder failed:', err)
+      loadCertificates()
+    }
+  }
+
+  const handleMove = async (index, direction) => {
+    const targetIndex = index + direction
+    if (targetIndex < 0 || targetIndex >= certificates.length) return
+
+    const updated = [...certificates]
+    const [movedItem] = updated.splice(index, 1)
+    updated.splice(targetIndex, 0, movedItem)
+
+    const reordered = updated.map((item, idx) => ({ ...item, displayOrder: idx }))
+    setCertificates(reordered)
+
+    try {
+      await reorderCertificates(reordered.map((item, idx) => ({ id: item._id || item.id, displayOrder: idx })))
+    } catch (err) {
+      console.error('Reorder failed:', err)
+      loadCertificates()
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Certificates & Credentials</h2>
-          <p className="text-xs sm:text-sm text-gray-400 mt-1">Manage accredited certificates and awards live on imadh.me</p>
+          <p className="text-xs sm:text-sm text-gray-400 mt-1">
+            Drag handles or use arrows to reorder certificates live on imadh.me
+          </p>
         </div>
         <button
           onClick={openCreateModal}
@@ -139,8 +211,51 @@ export default function Certificates() {
             No certificates found. Click "+ Add New Certificate" above.
           </div>
         ) : (
-          certificates.map((cert) => (
-            <div key={cert._id || cert.id} className="p-4 bg-[#141a21] border border-gray-800 rounded-2xl space-y-3">
+          certificates.map((cert, idx) => (
+            <div
+              key={cert._id || cert.id}
+              draggable
+              onDragStart={(e) => handleDragStart(e, idx)}
+              onDragOver={(e) => handleDragOver(e, idx)}
+              onDragEnd={handleDragEnd}
+              onDrop={(e) => handleDrop(e, idx)}
+              className={`p-4 bg-[#141a21] border rounded-2xl space-y-3 transition-all cursor-grab active:cursor-grabbing ${
+                draggedIndex === idx
+                  ? 'opacity-40 border-dashed border-[#00df8f]'
+                  : 'border-gray-800'
+              } ${dragOverIndex === idx ? 'ring-2 ring-[#00df8f]' : ''}`}
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-gray-800/60 text-xs text-gray-400">
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <GripVertical size={16} className="text-gray-500" />
+                  <span>Order #{idx + 1}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    disabled={idx === 0}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleMove(idx, -1)
+                    }}
+                    className="p-1 rounded bg-gray-800 text-gray-300 hover:text-white disabled:opacity-30"
+                    title="Move Up"
+                  >
+                    <ArrowUp size={13} />
+                  </button>
+                  <button
+                    disabled={idx === certificates.length - 1}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleMove(idx, 1)
+                    }}
+                    className="p-1 rounded bg-gray-800 text-gray-300 hover:text-white disabled:opacity-30"
+                    title="Move Down"
+                  >
+                    <ArrowDown size={13} />
+                  </button>
+                </div>
+              </div>
+
               <div className="flex items-start gap-3">
                 <img
                   src={typeof cert.image === 'string' ? cert.image : cert.image?.url}
@@ -194,6 +309,8 @@ export default function Certificates() {
           <table className="w-full text-left text-sm text-gray-300">
             <thead className="bg-[#0f151b] text-xs uppercase tracking-wider text-gray-400 border-b border-gray-800">
               <tr>
+                <th className="py-4 px-3 text-center w-12">#</th>
+                <th className="py-4 px-3 text-center w-24">Order</th>
                 <th className="py-4 px-6">Certificate</th>
                 <th className="py-4 px-6">Issuer</th>
                 <th className="py-4 px-6">Status</th>
@@ -203,15 +320,59 @@ export default function Certificates() {
             <tbody className="divide-y divide-gray-800/60">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="py-8 text-center text-gray-500">Loading certificates...</td>
+                  <td colSpan={6} className="py-8 text-center text-gray-500">
+                    Loading certificates...
+                  </td>
                 </tr>
               ) : certificates.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="py-8 text-center text-gray-500">No certificates found. Click "+ Add New Certificate" above.</td>
+                  <td colSpan={6} className="py-8 text-center text-gray-500">
+                    No certificates found. Click "+ Add New Certificate" above.
+                  </td>
                 </tr>
               ) : (
-                certificates.map((cert) => (
-                  <tr key={cert._id || cert.id} className="hover:bg-white/5 transition-colors">
+                certificates.map((cert, idx) => (
+                  <tr
+                    key={cert._id || cert.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, idx)}
+                    onDragOver={(e) => handleDragOver(e, idx)}
+                    onDragEnd={handleDragEnd}
+                    onDrop={(e) => handleDrop(e, idx)}
+                    className={`transition-colors cursor-grab active:cursor-grabbing ${
+                      draggedIndex === idx ? 'opacity-40 bg-emerald-500/10' : ''
+                    } ${
+                      dragOverIndex === idx
+                        ? 'border-t-2 border-[#00df8f] bg-white/10'
+                        : 'hover:bg-white/5'
+                    }`}
+                  >
+                    <td className="py-4 px-3 text-center text-gray-500">
+                      <div className="flex items-center justify-center gap-1">
+                        <GripVertical size={16} className="text-gray-500 hover:text-white" />
+                        <span className="text-xs font-mono">{idx + 1}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-3 text-center">
+                      <div className="flex items-center justify-center gap-1" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          disabled={idx === 0}
+                          onClick={() => handleMove(idx, -1)}
+                          className="p-1 rounded text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-20 transition-colors"
+                          title="Move Up"
+                        >
+                          <ArrowUp size={14} />
+                        </button>
+                        <button
+                          disabled={idx === certificates.length - 1}
+                          onClick={() => handleMove(idx, 1)}
+                          className="p-1 rounded text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-20 transition-colors"
+                          title="Move Down"
+                        >
+                          <ArrowDown size={14} />
+                        </button>
+                      </div>
+                    </td>
                     <td className="py-4 px-6 flex items-center gap-4">
                       <img
                         src={typeof cert.image === 'string' ? cert.image : cert.image?.url}
@@ -229,7 +390,7 @@ export default function Certificates() {
                         {cert.status}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-right">
+                    <td className="py-4 px-6 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openEditModal(cert)}
@@ -255,7 +416,11 @@ export default function Certificates() {
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingCert ? 'Edit Current Certificate' : 'Upload New Certificate'}>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={editingCert ? 'Edit Current Certificate' : 'Upload New Certificate'}
+      >
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -294,7 +459,16 @@ export default function Certificates() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase text-gray-400 mb-1">Display Order</label>
+              <input
+                type="number"
+                value={displayOrder}
+                onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)}
+                className="w-full bg-[#0b1014] border border-gray-800 rounded-xl p-3 text-base sm:text-sm text-white focus:outline-none focus:border-[#00df8f]"
+              />
+            </div>
             <div>
               <label className="block text-xs font-semibold uppercase text-gray-400 mb-1">Category</label>
               <input
