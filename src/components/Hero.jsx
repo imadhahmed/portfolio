@@ -2,7 +2,6 @@ import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, MapPin, Briefcase, GraduationCap, Quote, Download } from 'lucide-react'
 import { useSettings } from '../hooks/useSettings'
-import myImage from '../assets/my.jpg'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -190,7 +189,7 @@ export default function Hero() {
               {/* Portrait */}
               <div className="relative mx-6 rounded-2xl overflow-hidden aspect-[3/4]">
                 <img
-                  src={myImage}
+                  src="https://res.cloudinary.com/r6datmty/image/upload/v1787116009/my.jpg"
                   alt="Imadh Ahmed portrait"
                   className="w-full h-full object-cover object-top"
                   draggable={false}
