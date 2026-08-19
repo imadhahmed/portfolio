@@ -18,7 +18,6 @@ export default function Projects() {
   const [githubUrl, setGithubUrl] = useState('')
   const [liveUrl, setLiveUrl] = useState('')
   const [status, setStatus] = useState('published')
-  const [displayOrder, setDisplayOrder] = useState(0)
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState('')
 
@@ -49,7 +48,6 @@ export default function Projects() {
     setGithubUrl('')
     setLiveUrl('')
     setStatus('published')
-    setDisplayOrder(0)
     setImageFile(null)
     setImagePreview('')
     setIsModalOpen(true)
@@ -64,7 +62,6 @@ export default function Projects() {
     setGithubUrl(proj.githubUrl || '')
     setLiveUrl(proj.liveUrl || '')
     setStatus(proj.status || 'published')
-    setDisplayOrder(proj.displayOrder ?? 0)
     setImageFile(null)
     setImagePreview(typeof proj.image === 'string' ? proj.image : proj.image?.url || '')
     setIsModalOpen(true)
@@ -84,7 +81,6 @@ export default function Projects() {
       formData.append('githubUrl', githubUrl)
       formData.append('liveUrl', liveUrl)
       formData.append('status', status)
-      formData.append('displayOrder', displayOrder)
 
       if (imageFile) {
         formData.append('image', imageFile)
@@ -159,9 +155,6 @@ export default function Projects() {
                     }`}>
                       {proj.status}
                     </span>
-                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-gray-800 text-gray-300 border border-gray-700 shrink-0">
-                      Order: #{proj.displayOrder ?? 0}
-                    </span>
                   </div>
                   <span className="inline-block text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-white/5 border border-gray-700 text-gray-300 mt-1">
                     {proj.category}
@@ -200,7 +193,6 @@ export default function Projects() {
           <table className="w-full text-left text-sm text-gray-300">
             <thead className="bg-[#0f151b] text-xs uppercase tracking-wider text-gray-400 border-b border-gray-800">
               <tr>
-                <th className="py-4 px-6">Order</th>
                 <th className="py-4 px-6">Project</th>
                 <th className="py-4 px-6">Category</th>
                 <th className="py-4 px-6">Status</th>
@@ -210,20 +202,15 @@ export default function Projects() {
             <tbody className="divide-y divide-gray-800/60">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-gray-500">Loading projects...</td>
+                  <td colSpan={4} className="py-8 text-center text-gray-500">Loading projects...</td>
                 </tr>
               ) : projects.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-gray-500">No projects found. Click "+ Add New Project" above.</td>
+                  <td colSpan={4} className="py-8 text-center text-gray-500">No projects found. Click "+ Add New Project" above.</td>
                 </tr>
               ) : (
                 projects.map((proj) => (
                   <tr key={proj._id || proj.id} className="hover:bg-white/5 transition-colors">
-                    <td className="py-4 px-6">
-                      <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-gray-800 text-gray-300 border border-gray-700">
-                        #{proj.displayOrder ?? 0}
-                      </span>
-                    </td>
                     <td className="py-4 px-6 flex items-center gap-4">
                       <img
                         src={typeof proj.image === 'string' ? proj.image : proj.image?.url}
@@ -324,30 +311,6 @@ export default function Projects() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold uppercase text-gray-400 mb-1">Display Order</label>
-              <input
-                type="number"
-                value={displayOrder}
-                onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)}
-                placeholder="0 (Lower numbers appear first)"
-                className="w-full bg-[#0b1014] border border-gray-800 rounded-xl p-3 text-base sm:text-sm text-white focus:outline-none focus:border-[#00df8f]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase text-gray-400 mb-1">Status</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="w-full bg-[#0b1014] border border-gray-800 rounded-xl p-3 text-base sm:text-sm text-white focus:outline-none focus:border-[#00df8f]"
-              >
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
-              </select>
-            </div>
-          </div>
-          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold uppercase text-gray-400 mb-1">GitHub Repo URL</label>

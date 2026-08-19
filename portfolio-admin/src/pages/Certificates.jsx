@@ -18,7 +18,6 @@ export default function Certificates() {
   const [tags, setTags] = useState('')
   const [credentialUrl, setCredentialUrl] = useState('')
   const [status, setStatus] = useState('published')
-  const [displayOrder, setDisplayOrder] = useState(0)
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState('')
 
@@ -49,7 +48,6 @@ export default function Certificates() {
     setTags('')
     setCredentialUrl('')
     setStatus('published')
-    setDisplayOrder(0)
     setImageFile(null)
     setImagePreview('')
     setIsModalOpen(true)
@@ -64,7 +62,6 @@ export default function Certificates() {
     setTags(Array.isArray(cert.tags) ? cert.tags.join(', ') : cert.tags || '')
     setCredentialUrl(cert.credentialUrl || '')
     setStatus(cert.status || 'published')
-    setDisplayOrder(cert.displayOrder ?? 0)
     setImageFile(null)
     setImagePreview(typeof cert.image === 'string' ? cert.image : cert.image?.url || '')
     setIsModalOpen(true)
@@ -84,7 +81,6 @@ export default function Certificates() {
       formData.append('tags', JSON.stringify(tagsArray))
       formData.append('credentialUrl', credentialUrl)
       formData.append('status', status)
-      formData.append('displayOrder', displayOrder)
 
       if (imageFile) {
         formData.append('image', imageFile)
@@ -157,9 +153,6 @@ export default function Certificates() {
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shrink-0">
                       {cert.status}
                     </span>
-                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-gray-800 text-gray-300 border border-gray-700 shrink-0">
-                      Order: #{cert.displayOrder ?? 0}
-                    </span>
                   </div>
                   <p className="text-xs text-gray-400 font-semibold mt-0.5">{cert.issuer}</p>
                   {cert.category && (
@@ -201,7 +194,6 @@ export default function Certificates() {
           <table className="w-full text-left text-sm text-gray-300">
             <thead className="bg-[#0f151b] text-xs uppercase tracking-wider text-gray-400 border-b border-gray-800">
               <tr>
-                <th className="py-4 px-6">Order</th>
                 <th className="py-4 px-6">Certificate</th>
                 <th className="py-4 px-6">Issuer</th>
                 <th className="py-4 px-6">Status</th>
@@ -211,20 +203,15 @@ export default function Certificates() {
             <tbody className="divide-y divide-gray-800/60">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-gray-500">Loading certificates...</td>
+                  <td colSpan={4} className="py-8 text-center text-gray-500">Loading certificates...</td>
                 </tr>
               ) : certificates.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-gray-500">No certificates found. Click "+ Add New Certificate" above.</td>
+                  <td colSpan={4} className="py-8 text-center text-gray-500">No certificates found. Click "+ Add New Certificate" above.</td>
                 </tr>
               ) : (
                 certificates.map((cert) => (
                   <tr key={cert._id || cert.id} className="hover:bg-white/5 transition-colors">
-                    <td className="py-4 px-6">
-                      <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-gray-800 text-gray-300 border border-gray-700">
-                        #{cert.displayOrder ?? 0}
-                      </span>
-                    </td>
                     <td className="py-4 px-6 flex items-center gap-4">
                       <img
                         src={typeof cert.image === 'string' ? cert.image : cert.image?.url}
@@ -305,30 +292,6 @@ export default function Certificates() {
               placeholder="Summary of skills acquired..."
               className="w-full bg-[#0b1014] border border-gray-800 rounded-xl p-3 text-base sm:text-sm text-white focus:outline-none focus:border-[#00df8f]"
             />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold uppercase text-gray-400 mb-1">Display Order</label>
-              <input
-                type="number"
-                value={displayOrder}
-                onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)}
-                placeholder="0 (Lower numbers appear first)"
-                className="w-full bg-[#0b1014] border border-gray-800 rounded-xl p-3 text-base sm:text-sm text-white focus:outline-none focus:border-[#00df8f]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase text-gray-400 mb-1">Status</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="w-full bg-[#0b1014] border border-gray-800 rounded-xl p-3 text-base sm:text-sm text-white focus:outline-none focus:border-[#00df8f]"
-              >
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
-              </select>
-            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
