@@ -1,82 +1,31 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUpRight, ExternalLink, Award, ShieldCheck } from 'lucide-react'
-
-const certificates = [
-  {
-    id: 0,
-    category: 'Artificial Intelligence',
-    title: 'Machine Learning & Deep Learning Specialization',
-    issuer: 'DeepLearning.AI / Coursera',
-    description:
-      'Comprehensive specialization covering supervised learning algorithms, neural network architectures, computer vision models, NLP, and model deployment.',
-    tags: ['Python', 'Deep Learning', 'PyTorch', 'Neural Networks'],
-    credentialUrl: 'https://github.com/imadhahmed',
-    image:
-      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop',
-    color: '#00df8f',
-  },
-  {
-    id: 1,
-    category: 'Frontend Engineering',
-    title: 'Advanced React & Modern Web Development',
-    issuer: 'Meta Professional Certification',
-    description:
-      'Specialized training in modern frontend architectures, component-driven UI development, state management with React, and web performance optimization.',
-    tags: ['React.js', 'JavaScript ES6+', 'Web Tech', 'Tailwind CSS'],
-    credentialUrl: 'https://github.com/imadhahmed',
-    image:
-      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800&auto=format&fit=crop',
-    color: '#3b82f6',
-  },
-  {
-    id: 2,
-    category: 'Academic Achievement',
-    title: 'BSc Information Technology Scholar',
-    issuer: 'Rajarata University of Sri Lanka',
-    description:
-      'Recognized for academic excellence, core software engineering coursework, data structures, and innovative intelligent automation projects.',
-    tags: ['Information Technology', 'Software Engineering', 'RUSL'],
-    credentialUrl: 'https://github.com/imadhahmed',
-    image:
-      'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop',
-    color: '#8b5cf6',
-  },
-  {
-    id: 3,
-    category: 'Computer Vision',
-    title: 'OpenCV & Digital Image Processing',
-    issuer: 'OpenCV University',
-    description:
-      'Hands-on certification in feature extraction, real-time video processing, facial detection neural networks, and automated plant growth tracking systems.',
-    tags: ['OpenCV', 'Python', 'Computer Vision', 'Image Processing'],
-    credentialUrl: 'https://github.com/imadhahmed',
-    image:
-      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800&auto=format&fit=crop',
-    color: '#10b981',
-  },
-]
+import { useCertificates } from '../hooks/useCertificates'
 
 const springConfig = { ease: [0.32, 0.72, 0, 1], duration: 0.6 }
 
 export default function Certificates() {
+  const { certificates } = useCertificates()
   const [activeIdx, setActiveIdx] = useState(0)
 
+  const safeIdx = activeIdx >= certificates.length ? 0 : activeIdx
+
   const getCardProps = (i) => {
-    const total = certificates.length
-    let diff = (i - activeIdx + total) % total
+    const total = certificates.length || 1
+    let diff = (i - safeIdx + total) % total
     return { diff }
   }
 
   const handleCardClick = (i) => {
-    if (i === activeIdx) {
-      setActiveIdx((prev) => (prev + 1) % certificates.length)
+    if (i === safeIdx) {
+      setActiveIdx((prev) => (prev + 1) % (certificates.length || 1))
     } else {
       setActiveIdx(i)
     }
   }
 
-  const activeCert = certificates[activeIdx]
+  const activeCert = certificates[safeIdx] || certificates[0]
 
   return (
     <section id="certificates" className="py-32 relative overflow-hidden bg-[#0d1116]/80">

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUpRight, ExternalLink, Code2 } from 'lucide-react'
+import { useProjects } from '../hooks/useProjects'
 
 // Custom clean Github SVG Icon
 const GithubIcon = ({ size = 15, className = "" }) => (
@@ -10,84 +11,29 @@ const GithubIcon = ({ size = 15, className = "" }) => (
   </svg>
 )
 
-const projects = [
-  {
-    id: 0,
-    category: 'Web Development',
-    title: 'Portfolio Website',
-    description:
-      'Personal portfolio website built using React.js, JavaScript, and Bootstrap to showcase projects, skills, and personal experience.',
-    tags: ['React.js', 'JavaScript', 'Bootstrap', 'CSS'],
-    github: 'https://github.com/imadhahmed/portfolio.git',
-    live: 'https://imadhahmed.github.io/',
-    image:
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
-    color: '#00df8f',
-  },
-  {
-    id: 1,
-    category: 'Desktop Application',
-    title: 'Personal Organizer',
-    description:
-      'Personal Organizer application developed using C++ and .NET Framework for productivity management, schedule tracking, and personal task organization.',
-    tags: ['C++', '.NET Framework', 'Desktop App'],
-    github: 'https://github.com/imadhahmed/personalOrganizer.git',
-    live: 'https://github.com/imadhahmed/personalOrganizer.git',
-    image:
-      'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?q=80&w=800&auto=format&fit=crop',
-    color: '#3b82f6',
-  },
-  {
-    id: 2,
-    category: 'AI / Computer Vision',
-    title: 'Age & Gender Detector',
-    description:
-      'Computer vision system for real-time age and gender detection using Python and OpenCV with deep neural network classifiers.',
-    tags: ['Python', 'OpenCV', 'AI/ML', 'Computer Vision'],
-    github: 'https://github.com/imadhahmed/Age----Gender-Detection',
-    live: 'https://github.com/imadhahmed/Age----Gender-Detection',
-    image:
-      'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?q=80&w=800&auto=format&fit=crop',
-    color: '#8b5cf6',
-  },
-  {
-    id: 3,
-    category: 'AI / Image Processing',
-    title: 'Monitoring Plant Growth',
-    description:
-      'Automated plant growth monitoring system developed using Python and OpenCV for digital agriculture and image feature processing.',
-    tags: ['Python', 'OpenCV', 'Image Processing', 'Automation'],
-    github: 'https://github.com/imadhahmed/Monitoring_plant_growth',
-    live: 'https://github.com/imadhahmed/Monitoring_plant_growth',
-    image:
-      'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?q=80&w=800&auto=format&fit=crop',
-    color: '#10b981',
-  },
-]
-
 const springConfig = { ease: [0.32, 0.72, 0, 1], duration: 0.6 }
 
 export default function RecentWorks() {
+  const { projects } = useProjects()
   const [activeIdx, setActiveIdx] = useState(0)
 
+  const safeIdx = activeIdx >= projects.length ? 0 : activeIdx
+
   const getCardProps = (i) => {
-    const total = projects.length
-    // diff: 0 = front, positive = behind
-    let diff = (i - activeIdx + total) % total
+    const total = projects.length || 1
+    let diff = (i - safeIdx + total) % total
     return { diff }
   }
 
   const handleCardClick = (i) => {
-    if (i === activeIdx) {
-      // cycle front card to the back
-      setActiveIdx((prev) => (prev + 1) % projects.length)
+    if (i === safeIdx) {
+      setActiveIdx((prev) => (prev + 1) % (projects.length || 1))
     } else {
-      // pull clicked card to front
       setActiveIdx(i)
     }
   }
 
-  const activeProject = projects[activeIdx]
+  const activeProject = projects[safeIdx] || projects[0]
 
   return (
     <section id="work" className="py-32 relative overflow-hidden">
