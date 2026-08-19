@@ -86,19 +86,25 @@ VITE_API_URL=https://imadh-portfolio-api.onrender.com/api
 
 To point your GitHub Pages site to your live Render Backend API:
 
-1. Create or update the `.env` file in the **root directory** of your repository:
+1. **Set GitHub Repository Secret/Variable**:
+   - Go to your GitHub Repository ➔ **Settings** ➔ **Secrets and variables** ➔ **Actions**.
+   - Under **Secrets** (or **Variables**), click **New repository secret**.
+   - **Name**: `VITE_API_URL`
+   - **Value**: `https://imadh-portfolio-api.onrender.com/api` (Replace with your actual live API URL from Step 1).
 
-```env
-VITE_API_URL=https://imadh-portfolio-api.onrender.com/api
-```
+2. **Automatic Deployment via GitHub Actions**:
+   - The GitHub Actions workflow (`.github/workflows/deploy.yml`) automatically injects `VITE_API_URL` into the Vite build step whenever you push to `main`.
 
-2. Build and deploy to GitHub Pages:
-
-```bash
-# Run in root directory (c:\Users\shaki\Desktop\imadhahmed.github.io)
-npm run build
-npm run deploy
-```
+3. **Manual Local Build & Deploy (Optional)**:
+   - Create a local `.env` file in the root directory:
+     ```env
+     VITE_API_URL=https://imadh-portfolio-api.onrender.com/api
+     ```
+   - Then run:
+     ```bash
+     npm run build
+     npm run deploy
+     ```
 
 ---
 
