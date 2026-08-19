@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowUpRight, ExternalLink, Award, ShieldCheck } from 'lucide-react'
+import { ExternalLink, ShieldCheck } from 'lucide-react'
 import { useCertificates } from '../hooks/useCertificates'
 
 const springConfig = { ease: [0.32, 0.72, 0, 1], duration: 0.6 }
@@ -54,22 +54,6 @@ export default function Certificates() {
               </span>
             </h2>
           </motion.div>
-
-          <motion.a
-            href="https://github.com/imadhahmed"
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            whileHover={{ scale: 1.04, x: 4 }}
-            className="flex items-center gap-2 text-sm font-semibold text-[#00df8f] border border-[#00df8f]/30 rounded-full px-6 py-3 hover:bg-[#00df8f]/10 transition-colors duration-300 self-start sm:self-auto"
-          >
-            <Award size={16} />
-            View All Credentials
-            <ArrowUpRight size={16} />
-          </motion.a>
         </div>
 
         {/* Main Grid */}
