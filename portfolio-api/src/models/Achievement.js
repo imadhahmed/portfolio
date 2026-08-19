@@ -17,4 +17,6 @@ const achievementSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
+achievementSchema.index({ status: 1, displayOrder: 1, createdAt: -1 })
+
 export const Achievement = mongoose.models.Achievement || mongoose.model('Achievement', achievementSchema)

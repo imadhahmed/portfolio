@@ -4,9 +4,9 @@ const siteSettingsSchema = new mongoose.Schema(
   {
     key: { type: String, required: true, unique: true, default: 'main' },
     cv: {
-      url: { type: String, default: '/CV.pdf' },
+      url: { type: String, default: '#' },
       publicId: { type: String },
-      fileName: { type: String, default: 'Imadh_Ahmed_CV.pdf' },
+      fileName: { type: String, default: 'CV.pdf' },
       updatedAt: { type: Date, default: Date.now },
     },
     heroSubtitle: { type: String },

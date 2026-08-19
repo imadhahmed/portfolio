@@ -20,4 +20,6 @@ const certificateSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
+certificateSchema.index({ status: 1, displayOrder: 1, createdAt: -1 })
+
 export const Certificate = mongoose.models.Certificate || mongoose.model('Certificate', certificateSchema)

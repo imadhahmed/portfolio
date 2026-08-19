@@ -21,15 +21,19 @@ export async function getAllProjectsAdmin(req, res) {
 
 export async function createProject(req, res) {
   try {
-    const { title, description, category, githubUrl, liveUrl, technologies, color, featured, status, displayOrder } = req.body
+    const { title, description, category, githubUrl, liveUrl, technologies, color, featured, status, displayOrder, imageUrl: bodyImageUrl } = req.body
     
-    let imageUrl = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop'
+    let imageUrl = bodyImageUrl || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop'
     let publicId = null
 
     if (req.file) {
-      const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/projects')
-      imageUrl = uploadRes.url
-      publicId = uploadRes.publicId
+      try {
+        const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/projects')
+        imageUrl = uploadRes.url
+        publicId = uploadRes.publicId
+      } catch (uploadErr) {
+        console.warn('[Cloudinary Warning] Upload failed, falling back to default image:', uploadErr.message)
+      }
     }
 
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') || `project-${Date.now()}`
@@ -65,7 +69,7 @@ export async function updateProject(req, res) {
       return res.status(404).json({ success: false, message: 'Project not found' })
     }
 
-    const { title, description, category, githubUrl, liveUrl, technologies, color, featured, status, displayOrder } = req.body
+    const { title, description, category, githubUrl, liveUrl, technologies, color, featured, status, displayOrder, imageUrl: bodyImageUrl } = req.body
 
     if (title) project.title = title
     if (description) project.description = description
@@ -79,13 +83,20 @@ export async function updateProject(req, res) {
     if (technologies) {
       project.technologies = typeof technologies === 'string' ? JSON.parse(technologies) : technologies
     }
+    if (bodyImageUrl) {
+      project.image = { ...project.image, url: bodyImageUrl }
+    }
 
     if (req.file) {
-      if (project.image && project.image.publicId) {
-        await deleteFromCloudinary(project.image.publicId)
+      try {
+        if (project.image && project.image.publicId) {
+          await deleteFromCloudinary(project.image.publicId)
+        }
+        const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/projects')
+        project.image = { url: uploadRes.url, publicId: uploadRes.publicId }
+      } catch (uploadErr) {
+        console.warn('[Cloudinary Warning] Update image upload failed:', uploadErr.message)
       }
-      const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/projects')
-      project.image = { url: uploadRes.url, publicId: uploadRes.publicId }
     }
 
     await project.save()

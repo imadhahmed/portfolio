@@ -27,9 +27,13 @@ export async function createAchievement(req, res) {
     let publicId = null
 
     if (req.file) {
-      const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/achievements')
-      imageUrl = uploadRes.url
-      publicId = uploadRes.publicId
+      try {
+        const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/achievements')
+        imageUrl = uploadRes.url
+        publicId = uploadRes.publicId
+      } catch (uploadErr) {
+        console.warn('[Cloudinary Warning] Achievement image upload failed:', uploadErr.message)
+      }
     }
 
     const achievement = await Achievement.create({
@@ -68,11 +72,15 @@ export async function updateAchievement(req, res) {
     if (displayOrder !== undefined) ach.displayOrder = parseInt(displayOrder)
 
     if (req.file) {
-      if (ach.image && ach.image.publicId) {
-        await deleteFromCloudinary(ach.image.publicId)
+      try {
+        if (ach.image && ach.image.publicId) {
+          await deleteFromCloudinary(ach.image.publicId)
+        }
+        const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/achievements')
+        ach.image = { url: uploadRes.url, publicId: uploadRes.publicId }
+      } catch (uploadErr) {
+        console.warn('[Cloudinary Warning] Update achievement image failed:', uploadErr.message)
       }
-      const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/achievements')
-      ach.image = { url: uploadRes.url, publicId: uploadRes.publicId }
     }
 
     await ach.save()

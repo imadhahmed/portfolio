@@ -1,8 +1,8 @@
 import { apiFetch } from './client'
 
 export const DEFAULT_SETTINGS = {
-  cvUrl: '/CV.pdf',
-  cvFileName: 'Imadh_Ahmed_CV.pdf',
+  cvUrl: '#',
+  cvFileName: 'CV.pdf',
 }
 
 export async function getSiteSettings() {

@@ -27,9 +27,13 @@ export async function createCertificate(req, res) {
     let publicId = null
 
     if (req.file) {
-      const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/certificates')
-      imageUrl = uploadRes.url
-      publicId = uploadRes.publicId
+      try {
+        const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/certificates')
+        imageUrl = uploadRes.url
+        publicId = uploadRes.publicId
+      } catch (uploadErr) {
+        console.warn('[Cloudinary Warning] Certificate image upload failed, using default image:', uploadErr.message)
+      }
     }
 
     const parsedTags = typeof tags === 'string' ? JSON.parse(tags) : (tags || [])
@@ -78,11 +82,15 @@ export async function updateCertificate(req, res) {
     }
 
     if (req.file) {
-      if (cert.image && cert.image.publicId) {
-        await deleteFromCloudinary(cert.image.publicId)
+      try {
+        if (cert.image && cert.image.publicId) {
+          await deleteFromCloudinary(cert.image.publicId)
+        }
+        const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/certificates')
+        cert.image = { url: uploadRes.url, publicId: uploadRes.publicId }
+      } catch (uploadErr) {
+        console.warn('[Cloudinary Warning] Update certificate image failed:', uploadErr.message)
       }
-      const uploadRes = await uploadToCloudinary(req.file.buffer, 'portfolio/certificates')
-      cert.image = { url: uploadRes.url, publicId: uploadRes.publicId }
     }
 
     await cert.save()
