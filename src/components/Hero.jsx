@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, MapPin, Briefcase, GraduationCap, Quote, Download } from 'lucide-react'
 import { useSettings } from '../hooks/useSettings'
+import { getCvLinkProps } from '../api/settings'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -10,6 +11,7 @@ const fadeUp = {
 
 export default function Hero() {
   const { settings } = useSettings()
+  const cvProps = getCvLinkProps(settings.cvUrl, settings.cvFileName)
   const constraintsRef = useRef(null)
 
   const handleScroll = (href) => {
@@ -116,10 +118,7 @@ export default function Hero() {
               </motion.button>
 
               <motion.a
-                href={settings.cvUrl}
-                target={settings.cvUrl.startsWith('http') ? '_blank' : '_self'}
-                rel="noopener noreferrer"
-                download={settings.cvFileName}
+                {...cvProps}
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
                 className="flex items-center gap-3 px-7 py-4 rounded-full font-semibold text-sm tracking-wide text-white border border-white/20 bg-white/5 hover:border-[#00df8f] hover:text-[#00df8f] transition-all duration-300"

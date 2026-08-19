@@ -96,7 +96,7 @@ export default function CV() {
           href={cvInfo.url}
           target="_blank"
           rel="noopener noreferrer"
-          download={cvInfo.fileName}
+          {...(!cvInfo.url.startsWith('http') ? { download: cvInfo.fileName } : {})}
           className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-gray-700 text-xs font-bold text-white hover:border-[#00df8f] hover:text-[#00df8f] transition-all w-full sm:w-auto shrink-0"
         >
           <Download size={15} />
