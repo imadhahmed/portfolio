@@ -14,10 +14,10 @@ const GithubIcon = ({ size = 15, className = "" }) => (
 const springConfig = { ease: [0.32, 0.72, 0, 1], duration: 0.6 }
 
 export default function RecentWorks() {
-  const { projects } = useProjects()
+  const { projects, loading } = useProjects()
   const [activeIdx, setActiveIdx] = useState(0)
 
-  const safeIdx = activeIdx >= projects.length ? 0 : activeIdx
+  const safeIdx = projects.length > 0 ? (activeIdx >= projects.length ? 0 : activeIdx) : 0
 
   const getCardProps = (i) => {
     const total = projects.length || 1
@@ -33,7 +33,7 @@ export default function RecentWorks() {
     }
   }
 
-  const activeProject = projects[safeIdx] || projects[0]
+  const activeProject = projects.length > 0 ? (projects[safeIdx] || projects[0]) : null
 
   return (
     <section id="work" className="py-32 relative overflow-hidden">
@@ -79,176 +79,194 @@ export default function RecentWorks() {
           </motion.a>
         </div>
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-
-          {/* Left — Card Stack */}
-          <div className="lg:col-span-7">
-            {/* Stack container */}
-            <div
-              className="relative h-[340px] sm:h-[450px] md:h-[480px]"
-              style={{ perspective: '1000px' }}
-            >
-              {projects.map((project, i) => {
-                const { diff } = getCardProps(i)
-                const isActive = diff === 0
-                const zIndex = projects.length - diff
-
-                return (
-                  <motion.div
-                    key={project.id}
-                    onClick={() => handleCardClick(i)}
-                    animate={{
-                      y: diff * 35,
-                      scale: 1 - diff * 0.05,
-                      rotateX: diff * 2,
-                      zIndex,
-                      opacity: diff > 2 ? 0 : 1,
-                    }}
-                    transition={springConfig}
-                    className="absolute inset-0 rounded-2xl overflow-hidden cursor-pointer shadow-2xl border border-white/10"
-                    style={{
-                      transformOrigin: 'center top',
-                      transformStyle: 'preserve-3d',
-                    }}
-                  >
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-full object-cover"
-                      draggable={false}
-                    />
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    {/* Active badge */}
-                    {isActive && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase bg-[#00df8f] text-[#0d1116]"
-                      >
-                        Active
-                      </motion.div>
-                    )}
-                    {/* Click hint for inactive */}
-                    {!isActive && diff <= 2 && (
-                      <div className="absolute inset-0 bg-black/40 hover:bg-black/20 transition-colors" />
-                    )}
-                    {/* Category on bottom of active */}
-                    {isActive && (
-                      <div className="absolute bottom-4 left-4">
-                        <span className="text-xs font-semibold tracking-[0.2em] uppercase text-white/80 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-sm">
-                          {project.category}
-                        </span>
-                      </div>
-                    )}
-                  </motion.div>
-                )
-              })}
-            </div>
-
-            {/* Navigation Dots */}
-            <div className="flex items-center gap-3 mt-8">
-              {projects.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveIdx(i)}
-                  className={`transition-all duration-300 rounded-full ${
-                    i === activeIdx
-                      ? 'w-8 h-2 bg-[#00df8f] shadow-[0_0_8px_rgba(0,223,143,0.6)]'
-                      : 'w-2 h-2 bg-white/20 hover:bg-white/40'
-                  }`}
-                  aria-label={`Go to project ${i + 1}`}
-                />
-              ))}
-              <span className="ml-auto text-xs text-gray-600 font-mono">
-                {String(activeIdx + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
-              </span>
-            </div>
+        {/* Content Section */}
+        {loading ? (
+          <div className="text-center py-24 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm">
+            <div className="inline-block w-8 h-8 border-2 border-[#00df8f] border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-sm text-gray-400 font-mono">Loading database projects...</p>
           </div>
+        ) : projects.length === 0 ? (
+          <div className="text-center py-24 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm max-w-2xl mx-auto">
+            <Code2 className="mx-auto h-12 w-12 text-[#00df8f]/60 mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2">No Database Projects Found</h3>
+            <p className="text-sm text-gray-400 max-w-md mx-auto">
+              There are currently no projects stored in the database.
+            </p>
+          </div>
+        ) : (
+          /* Main Grid */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
 
-          {/* Right — Description Panel */}
-          <div className="lg:col-span-5 lg:pt-4">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeProject.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            {/* Left — Card Stack */}
+            <div className="lg:col-span-7">
+              {/* Stack container */}
+              <div
+                className="relative h-[340px] sm:h-[450px] md:h-[480px]"
+                style={{ perspective: '1000px' }}
               >
-                {/* Category */}
-                <div className="flex items-center gap-3 mb-6">
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ background: activeProject.color }}
-                  />
-                  <span className="text-xs font-semibold tracking-[0.25em] uppercase text-[#00df8f]">
-                    {activeProject.category}
-                  </span>
-                </div>
+                {projects.map((project, i) => {
+                  const { diff } = getCardProps(i)
+                  const isActive = diff === 0
+                  const zIndex = projects.length - diff
 
-                {/* Title */}
-                <h3 className="text-3xl sm:text-4xl font-bold tracking-tighter text-white leading-tight mb-5">
-                  {activeProject.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-gray-400 leading-relaxed mb-8 text-[1.02rem]">
-                  {activeProject.description}
-                </p>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mb-10">
-                  {activeProject.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1.5 rounded-full text-xs font-semibold border border-white/10 text-gray-300 bg-white/5"
+                  return (
+                    <motion.div
+                      key={project.id}
+                      onClick={() => handleCardClick(i)}
+                      animate={{
+                        y: diff * 35,
+                        scale: 1 - diff * 0.05,
+                        rotateX: diff * 2,
+                        zIndex,
+                        opacity: diff > 2 ? 0 : 1,
+                      }}
+                      transition={springConfig}
+                      className="absolute inset-0 rounded-2xl overflow-hidden cursor-pointer shadow-2xl border border-white/10"
+                      style={{
+                        transformOrigin: 'center top',
+                        transformStyle: 'preserve-3d',
+                      }}
                     >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="w-full h-full object-cover"
+                        draggable={false}
+                      />
+                      {/* Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      {/* Active badge */}
+                      {isActive && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase bg-[#00df8f] text-[#0d1116]"
+                        >
+                          Active
+                        </motion.div>
+                      )}
+                      {/* Click hint for inactive */}
+                      {!isActive && diff <= 2 && (
+                        <div className="absolute inset-0 bg-black/40 hover:bg-black/20 transition-colors" />
+                      )}
+                      {/* Category on bottom of active */}
+                      {isActive && (
+                        <div className="absolute bottom-4 left-4">
+                          <span className="text-xs font-semibold tracking-[0.2em] uppercase text-white/80 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-sm">
+                            {project.category}
+                          </span>
+                        </div>
+                      )}
+                    </motion.div>
+                  )
+                })}
+              </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-4">
-                  <motion.a
-                    href={activeProject.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold uppercase tracking-wider text-white border border-white/20 bg-white/5 hover:border-[#00df8f] hover:text-[#00df8f] transition-all"
+              {/* Navigation Dots */}
+              <div className="flex items-center gap-3 mt-8">
+                {projects.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveIdx(i)}
+                    className={`transition-all duration-300 rounded-full ${
+                      i === activeIdx
+                        ? 'w-8 h-2 bg-[#00df8f] shadow-[0_0_8px_rgba(0,223,143,0.6)]'
+                        : 'w-2 h-2 bg-white/20 hover:bg-white/40'
+                    }`}
+                    aria-label={`Go to project ${i + 1}`}
+                  />
+                ))}
+                <span className="ml-auto text-xs text-gray-600 font-mono">
+                  {String(activeIdx + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
+                </span>
+              </div>
+            </div>
+
+            {/* Right — Description Panel */}
+            {activeProject && (
+              <div className="lg:col-span-5 lg:pt-4">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeProject.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    <GithubIcon size={15} />
-                    <span>Source Code</span>
-                  </motion.a>
+                    {/* Category */}
+                    <div className="flex items-center gap-3 mb-6">
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ background: activeProject.color }}
+                      />
+                      <span className="text-xs font-semibold tracking-[0.25em] uppercase text-[#00df8f]">
+                        {activeProject.category}
+                      </span>
+                    </div>
 
-                  <motion.a
-                    href={activeProject.live}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold uppercase tracking-wider text-[#0d1116] bg-[#00df8f] hover:bg-[#00b373] transition-colors shadow-[0_0_15px_rgba(0,223,143,0.3)]"
-                  >
-                    <ExternalLink size={15} />
-                    <span>Live Demo</span>
-                  </motion.a>
-                </div>
+                    {/* Title */}
+                    <h3 className="text-3xl sm:text-4xl font-bold tracking-tighter text-white leading-tight mb-5">
+                      {activeProject.title}
+                    </h3>
 
-                {/* Separator line */}
-                <div className="mt-10 h-px bg-gradient-to-r from-white/10 to-transparent" />
+                    {/* Description */}
+                    <p className="text-gray-400 leading-relaxed mb-8 text-[1.02rem]">
+                      {activeProject.description}
+                    </p>
 
-                {/* Hint text */}
-                <p className="mt-6 text-xs text-gray-600 tracking-wide">
-                  Click card stack to cycle projects
-                </p>
-              </motion.div>
-            </AnimatePresence>
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-2 mb-10">
+                      {activeProject.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-3 py-1.5 rounded-full text-xs font-semibold border border-white/10 text-gray-300 bg-white/5"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-4">
+                      <motion.a
+                        href={activeProject.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.97 }}
+                        className="flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold uppercase tracking-wider text-white border border-white/20 bg-white/5 hover:border-[#00df8f] hover:text-[#00df8f] transition-all"
+                      >
+                        <GithubIcon size={15} />
+                        <span>Source Code</span>
+                      </motion.a>
+
+                      <motion.a
+                        href={activeProject.live}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.97 }}
+                        className="flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold uppercase tracking-wider text-[#0d1116] bg-[#00df8f] hover:bg-[#00b373] transition-colors shadow-[0_0_15px_rgba(0,223,143,0.3)]"
+                      >
+                        <ExternalLink size={15} />
+                        <span>Live Demo</span>
+                      </motion.a>
+                    </div>
+
+                    {/* Separator line */}
+                    <div className="mt-10 h-px bg-gradient-to-r from-white/10 to-transparent" />
+
+                    {/* Hint text */}
+                    <p className="mt-6 text-xs text-gray-600 tracking-wide">
+                      Click card stack to cycle projects
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            )}
+
           </div>
-
-        </div>
+        )}
       </div>
     </section>
   )

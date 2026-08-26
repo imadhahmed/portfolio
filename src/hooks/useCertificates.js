@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { getCertificates, DEFAULT_CERTIFICATES } from '../api/certificates'
+import { getCertificates } from '../api/certificates'
 
 export function useCertificates() {
-  const [certificates, setCertificates] = useState(DEFAULT_CERTIFICATES)
+  const [certificates, setCertificates] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -10,8 +10,8 @@ export function useCertificates() {
     let isMounted = true
     getCertificates()
       .then((data) => {
-        if (isMounted && data && data.length > 0) {
-          setCertificates(data)
+        if (isMounted) {
+          setCertificates(data || [])
         }
       })
       .catch((err) => {

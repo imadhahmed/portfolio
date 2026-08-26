@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { getProjects, DEFAULT_PROJECTS } from '../api/projects'
+import { getProjects } from '../api/projects'
 
 export function useProjects() {
-  const [projects, setProjects] = useState(DEFAULT_PROJECTS)
+  const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -10,8 +10,8 @@ export function useProjects() {
     let isMounted = true
     getProjects()
       .then((data) => {
-        if (isMounted && data && data.length > 0) {
-          setProjects(data)
+        if (isMounted) {
+          setProjects(data || [])
         }
       })
       .catch((err) => {
