@@ -1,10 +1,27 @@
 import { Achievement } from '../models/Achievement.js'
 import { uploadToCloudinary, deleteFromCloudinary } from '../services/cloudinaryService.js'
+import { apiCache } from '../utils/cache.js'
+
+const CACHE_KEY_ACHIEVEMENTS_PUBLIC = 'achievements:published'
+const CACHE_KEY_CERTIFICATES_PUBLIC = 'certificates:published'
 
 export async function getAchievements(req, res) {
   try {
-    const achievements = await Achievement.find({ status: 'published' }).sort({ displayOrder: 1, createdAt: -1 })
-    res.json({ success: true, data: achievements })
+    const cached = apiCache.get(CACHE_KEY_ACHIEVEMENTS_PUBLIC)
+    if (cached) {
+      res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600')
+      return res.json(cached)
+    }
+
+    const achievements = await Achievement.find({ status: 'published' })
+      .sort({ displayOrder: 1, createdAt: -1 })
+      .lean()
+
+    const payload = { success: true, data: achievements }
+    apiCache.set(CACHE_KEY_ACHIEVEMENTS_PUBLIC, payload)
+
+    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600')
+    res.json(payload)
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }
@@ -12,7 +29,7 @@ export async function getAchievements(req, res) {
 
 export async function getAllAchievementsAdmin(req, res) {
   try {
-    const achievements = await Achievement.find().sort({ displayOrder: 1, createdAt: -1 })
+    const achievements = await Achievement.find().sort({ displayOrder: 1, createdAt: -1 }).lean()
     res.json({ success: true, data: achievements })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
@@ -47,6 +64,8 @@ export async function createAchievement(req, res) {
       displayOrder: displayOrder ? parseInt(displayOrder) : 0,
     })
 
+    apiCache.del(CACHE_KEY_ACHIEVEMENTS_PUBLIC)
+    apiCache.del(CACHE_KEY_CERTIFICATES_PUBLIC)
     res.status(201).json({ success: true, data: achievement })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
@@ -84,6 +103,8 @@ export async function updateAchievement(req, res) {
     }
 
     await ach.save()
+    apiCache.del(CACHE_KEY_ACHIEVEMENTS_PUBLIC)
+    apiCache.del(CACHE_KEY_CERTIFICATES_PUBLIC)
     res.json({ success: true, data: ach })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
@@ -103,6 +124,8 @@ export async function deleteAchievement(req, res) {
     }
 
     await Achievement.findByIdAndDelete(id)
+    apiCache.del(CACHE_KEY_ACHIEVEMENTS_PUBLIC)
+    apiCache.del(CACHE_KEY_CERTIFICATES_PUBLIC)
     res.json({ success: true, message: 'Achievement deleted successfully' })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })

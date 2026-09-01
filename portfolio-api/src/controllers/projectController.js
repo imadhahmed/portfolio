@@ -1,10 +1,26 @@
 import { Project } from '../models/Project.js'
 import { uploadToCloudinary, deleteFromCloudinary } from '../services/cloudinaryService.js'
+import { apiCache } from '../utils/cache.js'
+
+const CACHE_KEY_PROJECTS_PUBLIC = 'projects:published'
 
 export async function getProjects(req, res) {
   try {
-    const projects = await Project.find({ status: 'published' }).sort({ displayOrder: 1, createdAt: -1 })
-    res.json({ success: true, data: projects })
+    const cached = apiCache.get(CACHE_KEY_PROJECTS_PUBLIC)
+    if (cached) {
+      res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600')
+      return res.json(cached)
+    }
+
+    const projects = await Project.find({ status: 'published' })
+      .sort({ displayOrder: 1, createdAt: -1 })
+      .lean()
+
+    const payload = { success: true, data: projects }
+    apiCache.set(CACHE_KEY_PROJECTS_PUBLIC, payload)
+
+    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600')
+    res.json(payload)
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }
@@ -12,7 +28,7 @@ export async function getProjects(req, res) {
 
 export async function getAllProjectsAdmin(req, res) {
   try {
-    const projects = await Project.find().sort({ displayOrder: 1, createdAt: -1 })
+    const projects = await Project.find().sort({ displayOrder: 1, createdAt: -1 }).lean()
     res.json({ success: true, data: projects })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
@@ -55,6 +71,7 @@ export async function createProject(req, res) {
       displayOrder: displayOrder ? parseInt(displayOrder) : 0,
     })
 
+    apiCache.del(CACHE_KEY_PROJECTS_PUBLIC)
     res.status(201).json({ success: true, data: project })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
@@ -100,6 +117,7 @@ export async function updateProject(req, res) {
     }
 
     await project.save()
+    apiCache.del(CACHE_KEY_PROJECTS_PUBLIC)
     res.json({ success: true, data: project })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
@@ -119,6 +137,7 @@ export async function deleteProject(req, res) {
     }
 
     await Project.findByIdAndDelete(id)
+    apiCache.del(CACHE_KEY_PROJECTS_PUBLIC)
     res.json({ success: true, message: 'Project deleted successfully' })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
@@ -143,6 +162,7 @@ export async function reorderProjects(req, res) {
       await Project.bulkWrite(bulkOps)
     }
 
+    apiCache.del(CACHE_KEY_PROJECTS_PUBLIC)
     res.json({ success: true, message: 'Projects reordered successfully' })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })

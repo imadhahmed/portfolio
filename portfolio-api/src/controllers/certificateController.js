@@ -1,10 +1,26 @@
 import { Certificate } from '../models/Certificate.js'
 import { uploadToCloudinary, deleteFromCloudinary } from '../services/cloudinaryService.js'
+import { apiCache } from '../utils/cache.js'
+
+const CACHE_KEY_CERTIFICATES_PUBLIC = 'certificates:published'
 
 export async function getCertificates(req, res) {
   try {
-    const certificates = await Certificate.find({ status: 'published' }).sort({ displayOrder: 1, createdAt: -1 })
-    res.json({ success: true, data: certificates })
+    const cached = apiCache.get(CACHE_KEY_CERTIFICATES_PUBLIC)
+    if (cached) {
+      res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600')
+      return res.json(cached)
+    }
+
+    const certificates = await Certificate.find({ status: 'published' })
+      .sort({ displayOrder: 1, createdAt: -1 })
+      .lean()
+
+    const payload = { success: true, data: certificates }
+    apiCache.set(CACHE_KEY_CERTIFICATES_PUBLIC, payload)
+
+    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600')
+    res.json(payload)
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }
@@ -12,7 +28,7 @@ export async function getCertificates(req, res) {
 
 export async function getAllCertificatesAdmin(req, res) {
   try {
-    const certificates = await Certificate.find().sort({ displayOrder: 1, createdAt: -1 })
+    const certificates = await Certificate.find().sort({ displayOrder: 1, createdAt: -1 }).lean()
     res.json({ success: true, data: certificates })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
@@ -52,6 +68,7 @@ export async function createCertificate(req, res) {
       displayOrder: displayOrder ? parseInt(displayOrder) : 0,
     })
 
+    apiCache.del(CACHE_KEY_CERTIFICATES_PUBLIC)
     res.status(201).json({ success: true, data: certificate })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
@@ -94,6 +111,7 @@ export async function updateCertificate(req, res) {
     }
 
     await cert.save()
+    apiCache.del(CACHE_KEY_CERTIFICATES_PUBLIC)
     res.json({ success: true, data: cert })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
@@ -113,6 +131,7 @@ export async function deleteCertificate(req, res) {
     }
 
     await Certificate.findByIdAndDelete(id)
+    apiCache.del(CACHE_KEY_CERTIFICATES_PUBLIC)
     res.json({ success: true, message: 'Certificate deleted successfully' })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
@@ -137,6 +156,7 @@ export async function reorderCertificates(req, res) {
       await Certificate.bulkWrite(bulkOps)
     }
 
+    apiCache.del(CACHE_KEY_CERTIFICATES_PUBLIC)
     res.json({ success: true, message: 'Certificates reordered successfully' })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
