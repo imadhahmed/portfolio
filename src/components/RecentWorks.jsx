@@ -83,7 +83,7 @@ export default function RecentWorks() {
         {loading ? (
           <div className="text-center py-24 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm">
             <div className="inline-block w-8 h-8 border-2 border-[#00df8f] border-t-transparent rounded-full animate-spin mb-4" />
-            <p className="text-sm text-gray-400 font-mono">Loading database projects...</p>
+
           </div>
         ) : projects.length === 0 ? (
           <div className="text-center py-24 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm max-w-2xl mx-auto">
@@ -168,11 +168,10 @@ export default function RecentWorks() {
                   <button
                     key={i}
                     onClick={() => setActiveIdx(i)}
-                    className={`transition-all duration-300 rounded-full ${
-                      i === activeIdx
+                    className={`transition-all duration-300 rounded-full ${i === activeIdx
                         ? 'w-8 h-2 bg-[#00df8f] shadow-[0_0_8px_rgba(0,223,143,0.6)]'
                         : 'w-2 h-2 bg-white/20 hover:bg-white/40'
-                    }`}
+                      }`}
                     aria-label={`Go to project ${i + 1}`}
                   />
                 ))}
